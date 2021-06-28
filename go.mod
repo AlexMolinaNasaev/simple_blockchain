@@ -1,3 +1,3 @@
-module AlexMolinaNasaev/simple_blockchain
+module github.com/alexmolinanasaev/simple_blockchain
 
 go 1.16

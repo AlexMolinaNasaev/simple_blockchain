@@ -3,12 +3,12 @@ package blockchain
 import "fmt"
 
 type Peer struct {
-	ID    int8
-	Peers map[int8]*Peer
+	ID    uint8
+	Peers map[uint8]*Peer
 	Chain *Chain
 }
 
-func NewPeer(ID int8) *Peer {
+func NewPeer(ID uint8) *Peer {
 	return &Peer{
 		ID: ID,
 	}

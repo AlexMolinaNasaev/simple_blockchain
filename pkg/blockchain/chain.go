@@ -5,21 +5,28 @@ import (
 )
 
 type Chain struct {
-	ID     int8
+	ID     uint8
 	Blocks []*Block
 }
 
-func NewChain(ID int8) *Chain {
+func NewChain(ID uint8) *Chain {
 	return &Chain{
 		ID:     ID,
 		Blocks: make([]*Block, 0),
 	}
 }
 
-func (c *Chain) AddBlock(b *Block) error {
+func (c *Chain) AddBlock(payload string) error {
 	chainLen := len(c.Blocks)
-	if chainLen != b.Number {
-		return fmt.Errorf("block number: %d does not match chain lenght: %d", b.Number, chainLen)
+	b := &Block{
+		Number:  chainLen,
+		Payload: payload,
+	}
+
+	if chainLen == 0 {
+		b.PrevBlockHash = ""
+	} else {
+		b.PrevBlockHash = c.Blocks[chainLen-1].Hash
 	}
 
 	b.CalcHash()
@@ -39,7 +46,9 @@ func (c *Chain) Validate() error {
 			return fmt.Errorf("wrong block number: %d at height: %d", b.Number, i)
 		}
 
-		if b.CalcHash() != b.Hash {
+		currBlockHash := b.Hash
+
+		if b.CalcHash() != currBlockHash {
 			return fmt.Errorf("wrong hash at block: %d", b.Number)
 		}
 	}
