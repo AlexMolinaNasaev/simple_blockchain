@@ -24,13 +24,20 @@ func main() {
 	chain.AddBlock("foobarbaz")
 
 	// chain.Blocks[2].Hash = "a81c83a869fc51a4771c18601c0070d5dc714004e9c3c5f6eb5fbc6a2990f4f5"
+	// chain.Print()
 
 	err = chain.Validate()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	for _, b := range chain.Blocks {
-		fmt.Printf("Block[%d] hash: %s\n", b.Number, b.Hash)
+	// chain.Blocks[3].Number = 33
+	// chain.Print()
+
+	err = chain.Validate()
+	if err != nil {
+		log.Fatal(err.Error())
 	}
+
+	chain.Print()
 }

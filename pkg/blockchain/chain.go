@@ -16,7 +16,7 @@ func NewChain(ID uint8) *Chain {
 	}
 }
 
-func (c *Chain) AddBlock(payload string) error {
+func (c *Chain) AddBlock(payload string) {
 	chainLen := len(c.Blocks)
 	b := &Block{
 		Number:  chainLen,
@@ -32,8 +32,6 @@ func (c *Chain) AddBlock(payload string) error {
 	b.Mine()
 
 	c.Blocks = append(c.Blocks, b)
-
-	return nil
 }
 
 func (c *Chain) Validate() error {
@@ -43,13 +41,21 @@ func (c *Chain) Validate() error {
 
 	for i, b := range c.Blocks {
 		if i != b.Number {
-			return fmt.Errorf("wrong block number: %d at height: %d", b.Number, i)
+			return NewChainValidationError(WrongBlockNumberError,
+				fmt.Errorf("block %d", b.Number))
 		}
 
 		if b.CalcHash() != b.Hash {
-			return fmt.Errorf("wrong hash at block: %d", b.Number)
+			return NewChainValidationError(WrongBlockHashError,
+				fmt.Errorf("block %d", b.Number))
 		}
 	}
 
 	return nil
+}
+
+func (c *Chain) Print() {
+	for _, b := range c.Blocks {
+		fmt.Printf("Block[%d] hash: %s\n", b.Number, b.Hash)
+	}
 }
