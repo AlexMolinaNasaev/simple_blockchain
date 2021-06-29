@@ -29,7 +29,7 @@ func (c *Chain) AddBlock(payload string) error {
 		b.PrevBlockHash = c.Blocks[chainLen-1].Hash
 	}
 
-	b.CalcHash()
+	b.Mine()
 
 	c.Blocks = append(c.Blocks, b)
 
@@ -46,9 +46,7 @@ func (c *Chain) Validate() error {
 			return fmt.Errorf("wrong block number: %d at height: %d", b.Number, i)
 		}
 
-		currBlockHash := b.Hash
-
-		if b.CalcHash() != currBlockHash {
+		if b.CalcHash() != b.Hash {
 			return fmt.Errorf("wrong hash at block: %d", b.Number)
 		}
 	}

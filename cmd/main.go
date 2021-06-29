@@ -23,7 +23,7 @@ func main() {
 	chain.AddBlock("here!")
 	chain.AddBlock("foobarbaz")
 
-	chain.Blocks[2].Hash = "a81c83a869fc51a4771c18601c0070d5dc714004e9c3c5f6eb5fbc6a2990f4f5"
+	// chain.Blocks[2].Hash = "a81c83a869fc51a4771c18601c0070d5dc714004e9c3c5f6eb5fbc6a2990f4f5"
 
 	err = chain.Validate()
 	if err != nil {

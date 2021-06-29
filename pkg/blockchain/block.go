@@ -15,6 +15,10 @@ type Block struct {
 func (b *Block) CalcHash() string {
 	hashData := fmt.Sprintf("%d%s%s", b.Number, b.PrevBlockHash, b.Payload)
 	hash := sha256.Sum256([]byte(hashData))
-	b.Hash = fmt.Sprintf("%x", hash)
+	return fmt.Sprintf("%x", hash)
+}
+
+func (b *Block) Mine() string {
+	b.Hash = b.CalcHash()
 	return b.Hash
 }
