@@ -27,10 +27,26 @@ func (c *Chain) ValidateChain() error {
 				fmt.Errorf("block %d", b.Number))
 		}
 
-		if err := c.ValidateBlock(b); err != nil {
+		if err := c.ValidateBlock(i); err != nil {
 			return NewBlockchainChainError(WrongBlockNumberError,
 				fmt.Errorf("block %d", b.Number))
 		}
+	}
+
+	return nil
+}
+
+func (c *Chain) ValidateBlock(blockNum int) error {
+	if blockNum < 0 {
+		return NewBlockchainChainError(NegativeBlockNumberError,
+			fmt.Errorf("block number: %d", blockNum))
+	}
+
+	chainLen := len(c.Blocks)
+
+	if blockNum > chainLen {
+		return NewBlockchainChainError(ExcitingBlockNumberError,
+			fmt.Errorf("block number: %d\nchain lenght:  %d", blockNum, chainLen))
 	}
 
 	return nil

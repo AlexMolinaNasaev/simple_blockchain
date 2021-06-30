@@ -31,6 +31,8 @@ func init() {
 	}
 }
 
+func TestValidateBlock(t *testing.T) {}
+
 func TestValidateNewBlock(t *testing.T) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	// randBlockNum := rand.Intn(len(expectedChain.Blocks))
