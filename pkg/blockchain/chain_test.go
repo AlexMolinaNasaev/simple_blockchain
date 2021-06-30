@@ -6,112 +6,114 @@ import (
 	"time"
 )
 
+var payloads = []string{"hello!", "world!", "test", "this is a transaction", "here!"}
+
 var expectedChain Chain = Chain{
-	ID: 255,
-	Blocks: []*Block{
-		{
-			Number:        0,
-			PrevBlockHash: "",
-			Payload:       "hello!",
-			Hash:          "1654f5178184945cd5210f05def489fc087fc5c09be586261a0e65126d6a196b",
-		},
-		{
-			Number:        1,
-			PrevBlockHash: "1654f5178184945cd5210f05def489fc087fc5c09be586261a0e65126d6a196b",
-			Payload:       "world!",
-			Hash:          "3ff1be2be0fd129d4190c769e38cac3ca3f643850fa94107f22440b8e4828ea0",
-		},
-		{
-			Number:        2,
-			PrevBlockHash: "3ff1be2be0fd129d4190c769e38cac3ca3f643850fa94107f22440b8e4828ea0",
-			Payload:       "test!",
-			Hash:          "a81c83a869fc51a4771c18601c0070d5dc714004e9c3c5f6eb5fbc6a2990f4f4",
-		},
-		{
-			Number:        3,
-			PrevBlockHash: "a81c83a869fc51a4771c18601c0070d5dc714004e9c3c5f6eb5fbc6a2990f4f4",
-			Payload:       "this is a transaction",
-			Hash:          "d8c5ea4626230b7de9f665fd49c670bc4679510540afae055c3426812251e190",
-		},
-		{
-			Number:        4,
-			PrevBlockHash: "d8c5ea4626230b7de9f665fd49c670bc4679510540afae055c3426812251e190",
-			Payload:       "here!",
-			Hash:          "bf77dea3e6389c7f3acb31eafd7fe7df9acffdb58489f44edc9cddef70f5e874",
-		},
-	},
+	ID:     255,
+	Blocks: make([]Block, len(payloads)+1), // 1 block per payload + genesis block
 }
 
-func TestAddBlock(t *testing.T) {
-	testChain := NewChain(255)
-	testChain.AddBlock("hello!")
-	testChain.AddBlock("world!")
-	testChain.AddBlock("test!")
-	testChain.AddBlock("this is a transaction")
-	testChain.AddBlock("here!")
+func init() {
+	expectedChain.Blocks[0] = GetGenesisBlock()
+	prevBlockHash := expectedChain.Blocks[0].Hash
 
-	expectedChainLen := len(expectedChain.Blocks)
-	testChainLen := len(testChain.Blocks)
+	for i, p := range payloads {
+		i = i + 1
+		b := Block{
+			Number:        i,
+			PrevBlockHash: prevBlockHash,
+			Payload:       p,
+		}
 
-	if expectedChainLen != testChainLen {
-		t.Fatalf("wrong chain lenght\n  Expected: %v\n Got:      %v", expectedChainLen, testChainLen)
+		prevBlockHash = b.Mine()
+
+		expectedChain.Blocks[i] = b
 	}
+}
 
-	// chosing random block pair to compare
+func TestValidateNewBlock(t *testing.T) {
 	rand.Seed(time.Now().UTC().UnixNano())
-	randBlockNum := rand.Intn(expectedChainLen)
-	expectedRandBlock := expectedChain.Blocks[randBlockNum]
-	testRandBlock := testChain.Blocks[randBlockNum]
+	// randBlockNum := rand.Intn(len(expectedChain.Blocks))
+	expectedRandBlock := expectedChain.Blocks[1]
 
-	if expectedRandBlock.Number != testRandBlock.Number {
-		t.Errorf("wrong block number\n random chosen block %v\n Expected: %v\n Got:      %v",
-			randBlockNum, expectedRandBlock.Number, testRandBlock.Number)
+	if err := expectedChain.ValidateBlock(expectedRandBlock); err != nil {
+		t.Errorf("Expected no error.\n Got: %v", err.Error())
 	}
 
-	if expectedRandBlock.PrevBlockHash != testRandBlock.PrevBlockHash {
-		t.Errorf("wrong block PrevBlockHash\n random chosen block %v\n Expected: %v\n Got:      %v",
-			randBlockNum, expectedRandBlock.PrevBlockHash, testRandBlock.PrevBlockHash)
-	}
+	// badBlock := expectedRandBlock
 
-	if expectedRandBlock.Payload != testRandBlock.Payload {
-		t.Errorf("wrong block payload\n random chosen block %v\n Expected: %v\n Got:      %v",
-			randBlockNum, expectedRandBlock.Payload, testRandBlock.Payload)
-	}
-
-	if expectedRandBlock.Hash != testRandBlock.Hash {
-		t.Errorf("wrong block hash\n random chosen block %v\n Expected: %v\n Got:      %v",
-			randBlockNum, expectedRandBlock.Hash, testRandBlock.Hash)
-	}
+	// badBlock.Hash = ""
+	// if err := expectedChain.ValidateBlock(badBlock); err == nil {
+	// 	t.Errorf("Expected error: block hash is empty: block number: %v", randBlockNum)
+	// }
 }
 
-func TestValidate(t *testing.T) {
-	testChain := expectedChain
+// func TestValidateChain(t *testing.T) {
+// 	// copying expected chain to avoid data rewriting
+// 	testChain := expectedChain
 
-	err := testChain.Validate()
-	if err != nil {
-		t.Errorf("validation error: %v", err.Error())
-	}
+// 	if err := testChain.ValidateChain(); err != nil {
+// 		t.Errorf("chain validation error: %v\nExpected no error", err.Error())
+// 	}
 
-	rand.Seed(time.Now().UTC().UnixNano())
-	randBlockNum := rand.Intn(len(expectedChain.Blocks))
+// 	rand.Seed(time.Now().UTC().UnixNano())
+// 	randBlockNum := rand.Intn(len(expectedChain.Blocks))
 
-	// breaking random block
-	expectedRandBlock := *testChain.Blocks[randBlockNum]
-	testRandBlock := testChain.Blocks[randBlockNum]
-	testRandBlock.Number = -1
-	testRandBlock.Hash = "wrong hash"
+// 	// breaking random block
+// 	expectedRandBlock := testChain.Blocks[randBlockNum]
+// 	testRandBlock := testChain.Blocks[randBlockNum]
+// 	testRandBlock.Number = -1
+// 	testRandBlock.Hash = "wrong hash"
 
-	err = testChain.Validate()
-	if err == nil {
-		t.Errorf("wrong block number not catched\n random chosen block %v\n Expected: %v\n Got:      %v",
-			randBlockNum, expectedRandBlock.Number, testRandBlock.Number)
-	}
+// 	if err := testChain.ValidateChain(); err != nil {
+// 		t.Errorf("wrong block number not catched\n random chosen block %v\n Expected: %v\n Got:      %v",
+// 			randBlockNum, expectedRandBlock.Number, testRandBlock.Number)
+// 	}
 
-	testRandBlock.Number = randBlockNum
+// 	testRandBlock.Number = randBlockNum
 
-	err = testChain.Validate()
-	if err == nil {
-		t.Errorf("wrong block hash not catched\n random chosen block %v\n Expected: %v\n Got:      %v",
-			randBlockNum, expectedRandBlock.Hash, testRandBlock.Hash)
-	}
-}
+// 	if err := testChain.ValidateChain(); err != nil {
+// 		t.Errorf("wrong block hash not catched\n random chosen block %v\n Expected: %v\n Got:      %v",
+// 			randBlockNum, expectedRandBlock.Hash, testRandBlock.Hash)
+// 	}
+// }
+
+// func TestMineBlock(t *testing.T) {
+// 	testChain := NewChain(255)
+// 	for i := range expectedChain.Blocks {
+// 		testChain.MineBlock(expectedChain.Blocks[i])
+// 	}
+
+// 	expectedChainLen := len(expectedChain.Blocks)
+// 	testChainLen := len(testChain.Blocks)
+
+// 	if expectedChainLen != testChainLen {
+// 		t.Fatalf("wrong chain lenght\n  Expected: %v\n Got:      %v", expectedChainLen, testChainLen)
+// 	}
+
+// 	// chosing random block pair to compare
+// 	rand.Seed(time.Now().UTC().UnixNano())
+// 	randBlockNum := rand.Intn(expectedChainLen)
+// 	expectedRandBlock := expectedChain.Blocks[randBlockNum]
+// 	testRandBlock := testChain.Blocks[randBlockNum]
+
+// 	if expectedRandBlock.Number != testRandBlock.Number {
+// 		t.Errorf("wrong block number\n random chosen block %v\n Expected: %v\n Got:      %v",
+// 			randBlockNum, expectedRandBlock.Number, testRandBlock.Number)
+// 	}
+
+// 	if expectedRandBlock.PrevBlockHash != testRandBlock.PrevBlockHash {
+// 		t.Errorf("wrong block PrevBlockHash\n random chosen block %v\n Expected: %v\n Got:      %v",
+// 			randBlockNum, expectedRandBlock.PrevBlockHash, testRandBlock.PrevBlockHash)
+// 	}
+
+// 	if expectedRandBlock.Payload != testRandBlock.Payload {
+// 		t.Errorf("wrong block payload\n random chosen block %v\n Expected: %v\n Got:      %v",
+// 			randBlockNum, expectedRandBlock.Payload, testRandBlock.Payload)
+// 	}
+
+// 	if expectedRandBlock.Hash != testRandBlock.Hash {
+// 		t.Errorf("wrong block hash\n random chosen block %v\n Expected: %v\n Got:      %v",
+// 			randBlockNum, expectedRandBlock.Hash, testRandBlock.Hash)
+// 	}
+// }

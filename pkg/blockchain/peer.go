@@ -24,8 +24,14 @@ func (p *Peer) AddPeer(peer *Peer) error {
 	return nil
 }
 
+func (p *Peer) AddBlock(payload string) {
+	// p.Chain.AddBlock(payload)
+}
+
+func (p *Peer) Broadcast() {}
+
 func (p *Peer) Sync() {
-	// largest
+	// largestChain :=
 	// for _, peer := range p.Peers {
 
 	// }

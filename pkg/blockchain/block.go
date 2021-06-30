@@ -22,3 +22,12 @@ func (b *Block) Mine() string {
 	b.Hash = b.CalcHash()
 	return b.Hash
 }
+
+func GetGenesisBlock() Block {
+	return Block{
+		Number:        GENESIS_BLOCK_NUMBER,
+		PrevBlockHash: GENESIS_BLOCK_PREV_HASH,
+		Payload:       GENESIS_BLOCK_PAYLOAD,
+		Hash:          GENESIS_BLOCK_HASH,
+	}
+}

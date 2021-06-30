@@ -6,50 +6,80 @@ import (
 
 type Chain struct {
 	ID     uint8
-	Blocks []*Block
+	Blocks []Block
 }
 
 func NewChain(ID uint8) *Chain {
 	return &Chain{
 		ID:     ID,
-		Blocks: make([]*Block, 0),
+		Blocks: make([]Block, 0),
 	}
 }
 
-func (c *Chain) AddBlock(payload string) {
-	chainLen := len(c.Blocks)
-	b := &Block{
-		Number:  chainLen,
-		Payload: payload,
-	}
-
-	if chainLen == 0 {
-		b.PrevBlockHash = ""
-	} else {
-		b.PrevBlockHash = c.Blocks[chainLen-1].Hash
-	}
-
-	b.Mine()
-
-	c.Blocks = append(c.Blocks, b)
-}
-
-func (c *Chain) Validate() error {
+func (c *Chain) ValidateChain() error {
 	if len(c.Blocks) == 0 {
 		return nil
 	}
 
 	for i, b := range c.Blocks {
 		if i != b.Number {
-			return NewChainValidationError(WrongBlockNumberError,
+			return NewBlockchainChainError(WrongBlockNumberError,
 				fmt.Errorf("block %d", b.Number))
 		}
 
-		if b.CalcHash() != b.Hash {
-			return NewChainValidationError(WrongBlockHashError,
+		if err := c.ValidateBlock(b); err != nil {
+			return NewBlockchainChainError(WrongBlockNumberError,
 				fmt.Errorf("block %d", b.Number))
 		}
 	}
+
+	return nil
+}
+
+func (c *Chain) ValidateNewBlock(block Block) error {
+	if block.Hash == "" {
+		return NewBlockchainChainError(EmptyBlockHashError,
+			fmt.Errorf("block number: %d", block.Number))
+	}
+
+	chainLen := len(c.Blocks)
+
+	if block.Number < 0 {
+		return NewBlockchainChainError(NegativeBlockNumberError,
+			fmt.Errorf("block number: %d", block.Number))
+	}
+
+	if block.Number > chainLen {
+		return NewBlockchainChainError(ExcitingBlockNumberError,
+			fmt.Errorf("block number: %d\nchain lenght:  %d", block.Number, chainLen))
+	}
+
+	prevBlock := GetGenesisBlock()
+
+	if block.Number != 0 {
+		prevBlock = c.Blocks[chainLen-1]
+	}
+
+	validationBlock := Block{}
+
+	fmt.Println(block.Hash)
+	fmt.Println(prevBlock.CalcHash())
+
+	if block.Hash != prevBlock.CalcHash() {
+		return NewBlockchainChainError(WrongBlockHashError,
+			fmt.Errorf("block: %d", block.Number))
+	}
+
+	return nil
+}
+
+func (c *Chain) MineBlock(block Block) error {
+	err := c.ValidateNewBlock(block)
+	if err != nil {
+		return NewBlockchainChainError(MineBlockError, err)
+	}
+
+	c.Blocks = append(c.Blocks, block)
 
 	return nil
 }
