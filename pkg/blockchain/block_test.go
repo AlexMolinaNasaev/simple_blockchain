@@ -9,7 +9,7 @@ func TestCalcHash(t *testing.T) {
 		Payload:       "hello!",
 	}
 
-	expectedTestBlockHash := "74100db7065ebcde033b04141e13911e3fdd638cc7259c2ca7493a2c2e52d725"
+	expectedTestBlockHash := GENESIS_BLOCK_HASH
 	testBlockHash := testBlock.CalcHash()
 	if testBlockHash != expectedTestBlockHash {
 		t.Fatalf("wrong block hash\n Expected: %v\n Got:      %v", expectedTestBlockHash, testBlockHash)

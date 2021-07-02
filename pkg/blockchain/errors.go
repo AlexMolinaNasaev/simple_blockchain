@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	UnknownError          = -1
+	UnknownError = -1
+	// block errors
 	WrongBlockNumberError = iota
 	NegativeBlockNumberError
 	ExcitingBlockNumberError

@@ -23,13 +23,12 @@ func (c *Chain) ValidateChain() error {
 
 	for i, b := range c.Blocks {
 		if i != b.Number {
-			return NewBlockchainChainError(WrongBlockNumberError,
-				fmt.Errorf("block %d. chain length", b.Number))
+			return NewBlockchainChainError(BlockValidationError,
+				NewBlockchainChainError(WrongBlockNumberError, fmt.Errorf("block number %d, block place: %d", b.Number, i)))
 		}
 
 		if err := c.ValidateBlock(i); err != nil {
-			return NewBlockchainChainError(WrongBlockNumberError,
-				fmt.Errorf("block %d", b.Number))
+			return NewBlockchainChainError(BlockValidationError, err)
 		}
 	}
 
@@ -60,10 +59,12 @@ func (c *Chain) ValidateBlock(blockNum int) error {
 	prevBlock := c.Blocks[blockNum-1]
 
 	validationBlock := Block{
-		Number:        chainLen,
+		Number:        blockNum,
 		PrevBlockHash: prevBlock.Hash,
 		Payload:       c.Blocks[blockNum].Payload,
 	}
+
+	validationBlock.Hash = validationBlock.CalcHash()
 
 	if c.Blocks[blockNum].Hash != validationBlock.CalcHash() {
 		return NewBlockchainChainError(WrongBlockHashError,
@@ -102,7 +103,19 @@ func (c *Chain) ValidateNewBlock(block Block) error {
 	return nil
 }
 
-func (c *Chain) MineBlock(block Block) error {
+func (c *Chain) MineBlock(payload string) {
+	chainLen := len(c.Blocks)
+	b := Block{
+		Number:        chainLen,
+		PrevBlockHash: c.Blocks[chainLen-1].Hash,
+		Payload:       payload,
+	}
+	b.Mine()
+
+	c.Blocks = append(c.Blocks, b)
+}
+
+func (c *Chain) AddBlock(block Block) error {
 	err := c.ValidateNewBlock(block)
 	if err != nil {
 		return NewBlockchainChainError(MineBlockError, err)
