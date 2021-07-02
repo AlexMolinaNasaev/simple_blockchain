@@ -12,7 +12,7 @@ type Chain struct {
 func NewChain(ID uint8) *Chain {
 	return &Chain{
 		ID:     ID,
-		Blocks: make([]Block, 0),
+		Blocks: []Block{GetGenesisBlock()},
 	}
 }
 
@@ -24,7 +24,7 @@ func (c *Chain) ValidateChain() error {
 	for i, b := range c.Blocks {
 		if i != b.Number {
 			return NewBlockchainChainError(WrongBlockNumberError,
-				fmt.Errorf("block %d", b.Number))
+				fmt.Errorf("block %d. chain length", b.Number))
 		}
 
 		if err := c.ValidateBlock(i); err != nil {
@@ -37,6 +37,14 @@ func (c *Chain) ValidateChain() error {
 }
 
 func (c *Chain) ValidateBlock(blockNum int) error {
+	if blockNum == GENESIS_BLOCK_NUMBER {
+		if c.Blocks[blockNum].Hash != GetGenesisBlock().Hash {
+			return NewBlockchainChainError(WrongBlockHashError,
+				fmt.Errorf("genesis block"))
+		}
+		return nil
+	}
+
 	if blockNum < 0 {
 		return NewBlockchainChainError(NegativeBlockNumberError,
 			fmt.Errorf("block number: %d", blockNum))
@@ -46,7 +54,20 @@ func (c *Chain) ValidateBlock(blockNum int) error {
 
 	if blockNum > chainLen {
 		return NewBlockchainChainError(ExcitingBlockNumberError,
-			fmt.Errorf("block number: %d\nchain lenght:  %d", blockNum, chainLen))
+			fmt.Errorf("block number: %d. Chain lenght:  %d", blockNum, chainLen))
+	}
+
+	prevBlock := c.Blocks[blockNum-1]
+
+	validationBlock := Block{
+		Number:        chainLen,
+		PrevBlockHash: prevBlock.Hash,
+		Payload:       c.Blocks[blockNum].Payload,
+	}
+
+	if c.Blocks[blockNum].Hash != validationBlock.CalcHash() {
+		return NewBlockchainChainError(WrongBlockHashError,
+			fmt.Errorf("block number: %d", blockNum))
 	}
 
 	return nil
@@ -60,28 +81,20 @@ func (c *Chain) ValidateNewBlock(block Block) error {
 
 	chainLen := len(c.Blocks)
 
-	if block.Number < 0 {
-		return NewBlockchainChainError(NegativeBlockNumberError,
-			fmt.Errorf("block number: %d", block.Number))
+	if block.Number != chainLen {
+		return NewBlockchainChainError(WrongBlockNumberError,
+			fmt.Errorf("block number: %d, chain length: %d", block.Number, chainLen))
 	}
 
-	if block.Number > chainLen {
-		return NewBlockchainChainError(ExcitingBlockNumberError,
-			fmt.Errorf("block number: %d\nchain lenght:  %d", block.Number, chainLen))
+	prevBlock := c.Blocks[chainLen-1]
+
+	validationBlock := Block{
+		Number:        chainLen,
+		PrevBlockHash: prevBlock.Hash,
+		Payload:       block.Payload,
 	}
 
-	prevBlock := GetGenesisBlock()
-
-	if block.Number != 0 {
-		prevBlock = c.Blocks[chainLen-1]
-	}
-
-	validationBlock := Block{}
-
-	fmt.Println(block.Hash)
-	fmt.Println(prevBlock.CalcHash())
-
-	if block.Hash != prevBlock.CalcHash() {
+	if block.Hash != validationBlock.CalcHash() {
 		return NewBlockchainChainError(WrongBlockHashError,
 			fmt.Errorf("block: %d", block.Number))
 	}
