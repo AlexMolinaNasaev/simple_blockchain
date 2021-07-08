@@ -4,15 +4,15 @@ import "testing"
 
 func TestCalcHash(t *testing.T) {
 	testBlock := Block{
-		Number:        0,
-		PrevBlockHash: "genesis",
-		Payload:       "hello!",
+		Number:        GENESIS_BLOCK_NUMBER,
+		PrevBlockHash: GENESIS_BLOCK_PREV_HASH,
+		Payload:       GENESIS_BLOCK_PAYLOAD,
 	}
 
 	expectedTestBlockHash := GENESIS_BLOCK_HASH
 	testBlockHash := testBlock.CalcHash()
 	if testBlockHash != expectedTestBlockHash {
-		t.Fatalf("wrong block hash\n Expected: %v\n Got:      %v", expectedTestBlockHash, testBlockHash)
+		t.Errorf("wrong block hash\n Expected: %v\n Got:      %v", expectedTestBlockHash, testBlockHash)
 	}
 }
 
