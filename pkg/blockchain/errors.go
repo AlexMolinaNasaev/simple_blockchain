@@ -16,6 +16,7 @@ const (
 	ChainValidationError
 	EmptyChainError
 	MineBlockError
+	PeerSyncError
 )
 
 var ErrorMessages = map[int]string{
@@ -30,11 +31,16 @@ var ErrorMessages = map[int]string{
 	ChainValidationError:     "chain validation error",
 	EmptyChainError:          "chain is empty",
 	MineBlockError:           "cannot mine block",
+	PeerSyncError:            "cannot synchronize to chain",
 }
 
 func NewBlockchainChainError(errorCode int, err error) error {
 	if _, ok := ErrorMessages[errorCode]; !ok {
 		return fmt.Errorf(ErrorMessages[UnknownError])
+	}
+
+	if err == nil {
+		err = fmt.Errorf("")
 	}
 
 	return fmt.Errorf("%s: %s", ErrorMessages[errorCode], err.Error())
