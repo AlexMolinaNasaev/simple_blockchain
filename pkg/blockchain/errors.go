@@ -18,6 +18,7 @@ const (
 	EmptyChainError
 	MineBlockError
 	PeerSyncError
+	AddBlockError
 )
 
 var ErrorMessages = map[int]string{
@@ -33,6 +34,7 @@ var ErrorMessages = map[int]string{
 	EmptyChainError:          "chain is empty",
 	MineBlockError:           "cannot mine block",
 	PeerSyncError:            "cannot synchronize to chain",
+	AddBlockError:            "cannot add block to chain",
 }
 
 func NewBlockchainChainError(errorCode int, err error) error {

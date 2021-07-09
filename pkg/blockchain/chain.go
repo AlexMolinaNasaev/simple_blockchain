@@ -118,7 +118,7 @@ func (c *Chain) MineBlock(payload string) {
 func (c *Chain) AddBlock(block Block) error {
 	err := c.ValidateNewBlock(block)
 	if err != nil {
-		return NewBlockchainChainError(MineBlockError, err)
+		return NewBlockchainChainError(AddBlockError, err)
 	}
 
 	c.Blocks = append(c.Blocks, block)

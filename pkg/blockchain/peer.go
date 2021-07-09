@@ -36,11 +36,32 @@ func (p *Peer) DeletePeerByID(id uint8) {
 	delete(p.Peers, id)
 }
 
-func (p *Peer) AddBlock(payload string) {
-	// p.Chain.AddBlock(payload)
+func (p *Peer) AddBlock(block Block) error {
+	p.chain.AddBlock(block)
+	return nil
 }
 
-func (p *Peer) Broadcast() {}
+func (p *Peer) MineBlock(payload string) {
+	chainLen := len(p.chain.Blocks)
+	prevBlock := p.chain.Blocks[chainLen-1]
+
+	newBlock := Block{
+		Number:        chainLen,
+		PrevBlockHash: prevBlock.Hash,
+		Payload:       payload,
+	}
+	newBlock.Mine()
+
+	p.chain.AddBlock(newBlock)
+
+	p.BroadcastBlock(newBlock)
+}
+
+func (p *Peer) BroadcastBlock(block Block) {
+	for _, peer := range p.Peers {
+		peer.AddBlock(block)
+	}
+}
 
 func (p *Peer) Sync() error {
 	var largestChainPeer *Peer
@@ -76,5 +97,4 @@ func (p *Peer) getLargestChainPeer() *Peer {
 	}
 
 	return largestChainPeer
-
 }
