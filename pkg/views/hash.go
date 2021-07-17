@@ -12,7 +12,7 @@ import (
 
 func Hash(w fyne.Window) fyne.CanvasObject {
 	input := widget.NewEntry()
-	input.SetPlaceHolder("Enter text...")
+	input.SetPlaceHolder("Введите текст...")
 	hashResult := widget.NewEntry()
 	hashResult.Disable()
 	input.OnChanged = func(s string) {
@@ -24,14 +24,14 @@ func Hash(w fyne.Window) fyne.CanvasObject {
 	field1 := widget.NewEntry()
 	field2 := widget.NewEntry()
 
-	field1.SetPlaceHolder("Enter text...")
-	field2.SetPlaceHolder("Enter text...")
+	field1.SetPlaceHolder("Введите текст...")
+	field2.SetPlaceHolder("Введите текст...")
 
-	compareHashesButtoion := widget.NewButton("compare hashes", func() {
+	compareHashesButtoion := widget.NewButton("сравнить хэши", func() {
 		if field1.Text == field2.Text {
-			dialog.ShowInformation("Success", "Hashes are equal", w)
+			dialog.ShowInformation("Успех!", "Хэши совпадают", w)
 		} else {
-			dialog.ShowError(fmt.Errorf("hases are not equal"), w)
+			dialog.ShowInformation("Ошибка!", "Хэши не совпадают", w)
 		}
 	})
 
