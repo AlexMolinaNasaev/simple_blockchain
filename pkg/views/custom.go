@@ -12,20 +12,20 @@ var (
 	entryWidth         float32 = 600
 )
 
-type BlockLayout struct {
+type ChainLayout struct {
 }
 
-func (b *BlockLayout) MinSize(objects []fyne.CanvasObject) fyne.Size {
-	return fyne.NewSize(entryWidth*float32(len(objects)), blockViewHeight)
+func (c *ChainLayout) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	return fyne.NewSize((entryWidth+float32(100))*float32(len(objects)), blockViewHeight)
 }
 
-func (b *BlockLayout) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
+func (c *ChainLayout) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
 	pos := fyne.NewPos(0, 0)
 	for _, o := range objects {
-		size := fyne.NewSize(entryWidth, blockViewHeight)
+		size := fyne.NewSize(entryWidth+float32(50), blockViewHeight)
 		o.Resize(size)
 		o.Move(pos)
 
-		pos = pos.Add(fyne.NewPos(size.Width+theme.Padding()*4, 0))
+		pos = pos.Add(fyne.NewPos(size.Width+theme.Padding()*10, 0))
 	}
 }

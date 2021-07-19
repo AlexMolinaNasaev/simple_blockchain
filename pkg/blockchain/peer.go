@@ -8,9 +8,11 @@ type Peer struct {
 	chain *Chain
 }
 
-func NewPeer(ID uint8) *Peer {
+func NewPeer(peerID, chainID uint8) *Peer {
 	return &Peer{
-		ID: ID,
+		ID:    peerID,
+		chain: NewChain(chainID),
+		Peers: make(map[uint8]*Peer),
 	}
 }
 

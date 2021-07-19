@@ -27,7 +27,7 @@ func Hash(w fyne.Window) fyne.CanvasObject {
 	field1.SetPlaceHolder("Введите текст...")
 	field2.SetPlaceHolder("Введите текст...")
 
-	compareHashesButtoion := widget.NewButton("сравнить хэши", func() {
+	compareHashesButton := widget.NewButton("сравнить хэши", func() {
 		if field1.Text == field2.Text {
 			dialog.ShowInformation("Успех!", "Хэши совпадают", w)
 		} else {
@@ -35,5 +35,5 @@ func Hash(w fyne.Window) fyne.CanvasObject {
 		}
 	})
 
-	return container.NewVBox(input, hashResult, field1, field2, compareHashesButtoion)
+	return container.NewVBox(input, hashResult, field1, field2, compareHashesButton)
 }
