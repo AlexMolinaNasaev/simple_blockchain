@@ -6,7 +6,7 @@ import (
 	"github.com/alexmolinanasaev/simple_blockchain/pkg/blockchain"
 )
 
-func Block(w fyne.Window) fyne.CanvasObject {
+func Block(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
 	peerContent := makePeer(peer)
 	return container.NewCenter(peerContent)

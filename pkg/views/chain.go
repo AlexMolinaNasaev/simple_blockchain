@@ -9,7 +9,7 @@ import (
 	"github.com/alexmolinanasaev/simple_blockchain/pkg/blockchain"
 )
 
-func Chain(w fyne.Window) fyne.CanvasObject {
+func Chain(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
 	peer.MineBlock("Hello, World!")
 	peer.MineBlock("test")
