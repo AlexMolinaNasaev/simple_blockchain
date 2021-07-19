@@ -11,10 +11,11 @@ type Example struct {
 
 var (
 	Examples = map[string]Example{
-		"hash": {"Хэш", "hash", Hash},
+		"hash":  {"Хэш", "hash", Hash},
+		"chain": {"Цепь", "chain", Chain},
 	}
 
 	ExampleIndex = map[string][]string{
-		"": {"hash"},
+		"": {"hash", "chain"},
 	}
 )

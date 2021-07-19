@@ -9,6 +9,7 @@ type Chain struct {
 	Blocks []Block
 }
 
+// NewChain creates a new chain with pre-calculated genesis block
 func NewChain(ID uint8) *Chain {
 	return &Chain{
 		ID:     ID,

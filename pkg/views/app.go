@@ -9,7 +9,6 @@ import (
 )
 
 func RunApp(app fyne.App) {
-
 	mainWindow := app.NewWindow("Entry Widget")
 
 	mainWindow.Resize(fyne.NewSize(1000, 1000))
