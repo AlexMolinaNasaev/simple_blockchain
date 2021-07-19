@@ -8,7 +8,7 @@ import (
 var (
 	minEntryHeight     float32 = 37.000000
 	payloadEntryHeight float32 = minEntryHeight * 2
-	blockViewHeight    float32 = minEntryHeight*2 + payloadEntryHeight
+	blockViewHeight    float32 = minEntryHeight*3 + payloadEntryHeight
 	entryWidth         float32 = 600
 )
 
@@ -16,13 +16,13 @@ type ChainLayout struct {
 }
 
 func (c *ChainLayout) MinSize(objects []fyne.CanvasObject) fyne.Size {
-	return fyne.NewSize((entryWidth+float32(100))*float32(len(objects)), blockViewHeight)
+	return fyne.NewSize((entryWidth+float32(150))*float32(len(objects)), blockViewHeight)
 }
 
 func (c *ChainLayout) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
 	pos := fyne.NewPos(0, 0)
 	for _, o := range objects {
-		size := fyne.NewSize(entryWidth+float32(50), blockViewHeight)
+		size := fyne.NewSize(entryWidth+float32(100), blockViewHeight)
 		o.Resize(size)
 		o.Move(pos)
 
