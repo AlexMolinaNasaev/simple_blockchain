@@ -16,21 +16,7 @@ func Chain(_ fyne.Window) fyne.CanvasObject {
 	peer.MineBlock("This is a new block")
 	peer.MineBlock("foo bar baz")
 
-	// peer2 := blockchain.NewPeer(2, 1)
-
-	// peer1.AddPeer(peer2)
-	// peer2.AddPeer(peer1)
-	// peer2.Sync()
-
 	peerContent := makePeer(peer)
-	// peer2Content := makePeer(peer2)
-
-	// content := container.NewVBox(
-	// 	peer1Content,
-	// 	widget.NewLabel(""),
-	// 	widget.NewLabel(""),
-	// 	peer2Content,
-	// )
 
 	scroller := container.NewHScroll(container.NewCenter(peerContent))
 
@@ -75,8 +61,6 @@ func makeBlock(block blockchain.Block) fyne.CanvasObject {
 		currBlockHash.SetText(block.Mine())
 	}
 
-	// a := widget.NewTextGrid().SetText("asd")
-
 	blockContent := container.NewVBox(blockNumber, prevBlockHash, payload, currBlockHash)
 	InfoContent := container.NewVBox(
 		widget.NewLabel("Block number"),
@@ -89,3 +73,7 @@ func makeBlock(block blockchain.Block) fyne.CanvasObject {
 
 	return container.NewHBox(InfoContent, widget.NewSeparator(), blockContent)
 }
+
+// !TODO добавить валидацию цепи и окрашивание полей в красный от сломанного блока. Надо использовать горутину, которая будет ловить изменение пэйлоуда
+// через глобалный канал
+// !TODO добавить майнинг блоков

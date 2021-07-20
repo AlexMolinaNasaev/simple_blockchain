@@ -17,23 +17,23 @@ func NewChain(ID uint8) *Chain {
 	}
 }
 
-func (c *Chain) ValidateChain() error {
+func (c *Chain) ValidateChain() (int, error) {
 	if len(c.Blocks) == 0 {
-		return nil
+		return -1, nil
 	}
 
 	for i, b := range c.Blocks {
 		if i != b.Number {
-			return NewBlockchainChainError(BlockValidationError,
+			return i, NewBlockchainChainError(BlockValidationError,
 				NewBlockchainChainError(WrongBlockNumberError, fmt.Errorf("block number %d, block place: %d", b.Number, i)))
 		}
 
 		if err := c.ValidateBlock(i); err != nil {
-			return NewBlockchainChainError(BlockValidationError, err)
+			return i, NewBlockchainChainError(BlockValidationError, err)
 		}
 	}
 
-	return nil
+	return -1, nil
 }
 
 func (c *Chain) ValidateBlock(blockNum int) error {

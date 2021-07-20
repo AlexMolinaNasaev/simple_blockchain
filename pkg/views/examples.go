@@ -15,9 +15,10 @@ var (
 		"block":  {"Блок", "block", Block},
 		"chain":  {"Цепь", "chain", Chain},
 		"mining": {"Майнинг", "mining", Mining},
+		"links":  {"Полезные ссылки", "links", Links},
 	}
 
 	ExampleIndex = map[string][]string{
-		"": {"hash", "block", "chain", "mining"},
+		"": {"hash", "block", "chain", "mining", "links"},
 	}
 )

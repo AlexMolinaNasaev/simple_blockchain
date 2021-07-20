@@ -102,13 +102,15 @@ func TestValidateChain(t *testing.T) {
 	// copying expected chain to avoid data rewriting
 	testChain := expectedChain
 
-	if err := testChain.ValidateChain(); err != nil {
+	_, err := testChain.ValidateChain()
+	if err != nil {
 		t.Errorf(ExpectedNoErrorTemplate, err.Error())
 	}
 
 	testChain.Blocks[3].Number = 5
 	expectedErrMsg := "block validation error: wrong block number: block number 5, block place: 3"
-	if err := testChain.ValidateChain(); err == nil {
+	_, err = testChain.ValidateChain()
+	if err == nil {
 		t.Errorf(GotNoErrorTemplate, expectedErrMsg)
 	} else if err.Error() != expectedErrMsg {
 		t.Errorf(ExpectedErrorTemplate, expectedErrMsg, err.Error())

@@ -70,7 +70,7 @@ func (p *Peer) Sync() error {
 	for {
 		largestChainPeer = p.getLargestChainPeer()
 
-		err := largestChainPeer.chain.ValidateChain()
+		_, err := largestChainPeer.chain.ValidateChain()
 		if err != nil {
 			p.DeletePeerByID(largestChainPeer.ID)
 			if len(p.Peers) == 0 {
