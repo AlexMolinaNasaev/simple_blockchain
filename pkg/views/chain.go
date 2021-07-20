@@ -39,7 +39,7 @@ func Chain(_ fyne.Window) fyne.CanvasObject {
 
 func makePeer(peer *blockchain.Peer) fyne.CanvasObject {
 	peerChain := makeChain(peer.GetChain())
-	peerContent := container.New(&ChainLayout{}, peerChain...)
+	peerContent := container.New(&BlockLayout{}, peerChain...)
 	peerContent = container.NewVBox(
 		widget.NewSeparator(),
 		peerContent,
@@ -75,6 +75,8 @@ func makeBlock(block blockchain.Block) fyne.CanvasObject {
 		currBlockHash.SetText(block.Mine())
 	}
 
+	// a := widget.NewTextGrid().SetText("asd")
+
 	blockContent := container.NewVBox(blockNumber, prevBlockHash, payload, currBlockHash)
 	InfoContent := container.NewVBox(
 		widget.NewLabel("Block number"),
@@ -82,6 +84,7 @@ func makeBlock(block blockchain.Block) fyne.CanvasObject {
 		widget.NewLabel("Payload"),
 		widget.NewLabel(""),
 		widget.NewLabel("Hash"),
+		widget.NewTextGrid(),
 	)
 
 	return container.NewHBox(InfoContent, widget.NewSeparator(), blockContent)

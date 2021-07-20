@@ -9,7 +9,7 @@ import (
 )
 
 func RunApp(app fyne.App) {
-	mainWindow := app.NewWindow("Entry Widget")
+	mainWindow := app.NewWindow("blockchain")
 
 	mainWindow.Resize(fyne.NewSize(1700, 1000))
 

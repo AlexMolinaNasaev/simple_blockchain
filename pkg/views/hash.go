@@ -35,5 +35,7 @@ func Hash(w fyne.Window) fyne.CanvasObject {
 		}
 	})
 
-	return container.NewVBox(input, hashResult, field1, field2, compareHashesButton)
+	content := container.NewVBox(input, hashResult, field1, field2, compareHashesButton)
+
+	return container.NewCenter(container.New(&BlockLayout{}, content))
 }

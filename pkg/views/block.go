@@ -8,6 +8,7 @@ import (
 
 func Block(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
-	peerContent := makePeer(peer)
+	peer.MineBlock("test!")
+	peerContent := makeBlock(peer.GetChain().Blocks[1])
 	return container.NewCenter(peerContent)
 }
