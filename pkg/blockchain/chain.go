@@ -38,7 +38,7 @@ func (c *Chain) ValidateChain() (int, error) {
 
 func (c *Chain) ValidateBlock(blockNum int) error {
 	if blockNum == GENESIS_BLOCK_NUMBER {
-		if c.Blocks[blockNum].Hash != GetGenesisBlock().Hash {
+		if c.Blocks[blockNum].CalcHash() != GetGenesisBlock().Hash {
 			return NewBlockchainChainError(WrongBlockHashError,
 				fmt.Errorf("genesis block"))
 		}

@@ -19,7 +19,6 @@ type blockViewData struct {
 
 var changeChan = make(chan struct{})
 var blocksData = make([]*blockViewData, 0)
-var globalChain = blockchain.Chain{}
 
 func Chain(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
@@ -28,11 +27,9 @@ func Chain(_ fyne.Window) fyne.CanvasObject {
 	peer.MineBlock("This is a new block")
 	peer.MineBlock("foo bar baz")
 
-	globalChain := peer.GetChain()
-
 	content := container.NewVBox(
 		widget.NewSeparator(),
-		makeChain(globalChain),
+		makeChain(peer.GetChain()),
 		widget.NewLabel(""),
 		widget.NewSeparator(),
 	)
@@ -40,14 +37,22 @@ func Chain(_ fyne.Window) fyne.CanvasObject {
 	go func() {
 		for {
 			<-changeChan
-			blockNumber, err := globalChain.ValidateChain()
+			blockNumber, err := peer.GetChain().ValidateChain()
+			if blockNumber+1 < len(peer.GetChain().Blocks) {
+				blockNumber = blockNumber + 1
+			}
 			if err != nil {
-				for _, b := range blocksData[:blockNumber] {
+				for _, b := range blocksData[blockNumber:] {
 					b.prevBlockHash.SetStyleRange(0, 0, 0, 63,
 						&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 192, G: 64, B: 64, A: 128}})
 					b.prevBlockHash.Refresh()
 				}
 			}
+			// for _, b := range blocksData[blockNumber:] {
+			// 	b.prevBlockHash.SetStyleRange(0, 0, 0, 63,
+			// 		&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 64, G: 192, B: 64, A: 128}})
+			// 	b.prevBlockHash.Refresh()
+			// }
 		}
 	}()
 
@@ -58,13 +63,14 @@ func Chain(_ fyne.Window) fyne.CanvasObject {
 
 func makeChain(chain *blockchain.Chain) fyne.CanvasObject {
 	var items []fyne.CanvasObject
-	for _, block := range chain.Blocks {
-		items = append(items, makeBlock(block))
+	for blockNum := range chain.Blocks {
+		items = append(items, makeBlock(chain, blockNum))
 	}
 	return container.New(&BlockLayout{}, items...)
 }
 
-func makeBlock(block blockchain.Block) fyne.CanvasObject {
+func makeBlock(chain *blockchain.Chain, blockNum int) fyne.CanvasObject {
+	block := chain.Blocks[blockNum]
 	blockData := &blockViewData{
 		blockNumber:   widget.NewTextGridFromString(fmt.Sprintf("%d\n", block.Number)),
 		prevBlockHash: widget.NewTextGridFromString(fmt.Sprintf("%s\n", block.PrevBlockHash)),
@@ -81,9 +87,10 @@ func makeBlock(block blockchain.Block) fyne.CanvasObject {
 	blockData.payload.SetText(block.Payload)
 
 	blockData.payload.OnChanged = func(s string) {
-		block.Payload = blockData.payload.Text
-		blockData.hash.SetText(block.Mine())
-		// !TODO надо изменить саму цепочку, иначе при валидации всегда будет правильно
+		chain.Blocks[blockNum].Payload = blockData.payload.Text
+		newBlockHAsh := chain.Blocks[blockNum].Mine()
+		blockData.hash.SetText(fmt.Sprintf("\n%s", newBlockHAsh))
+		chain.Blocks[blockNum].Payload = newBlockHAsh
 		changeChan <- struct{}{}
 	}
 
@@ -96,7 +103,7 @@ func makeBlock(block blockchain.Block) fyne.CanvasObject {
 	InfoContent := container.NewVBox(
 		widget.NewTextGridFromString("Block number\n"),
 		widget.NewTextGridFromString("Prev hash\n"),
-		widget.NewTextGridFromString("Payload\n\n\n"),
+		widget.NewTextGridFromString("Payload\n\n\n\n"),
 		widget.NewTextGridFromString("Hash"),
 	)
 
