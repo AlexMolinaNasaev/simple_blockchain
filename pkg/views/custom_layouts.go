@@ -16,13 +16,13 @@ type BlockLayout struct {
 }
 
 func (c *BlockLayout) MinSize(objects []fyne.CanvasObject) fyne.Size {
-	return fyne.NewSize((entryWidth+float32(150))*float32(len(objects)), blockViewHeight)
+	return fyne.NewSize((entryWidth+float32(200))*float32(len(objects)), blockViewHeight)
 }
 
 func (c *BlockLayout) Layout(objects []fyne.CanvasObject, containerSize fyne.Size) {
 	pos := fyne.NewPos(0, 0)
 	for _, o := range objects {
-		size := fyne.NewSize(entryWidth+float32(100), blockViewHeight)
+		size := fyne.NewSize(entryWidth+float32(150), blockViewHeight)
 		o.Resize(size)
 		o.Move(pos)
 
