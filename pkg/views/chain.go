@@ -10,106 +10,125 @@ import (
 	"github.com/alexmolinanasaev/simple_blockchain/pkg/blockchain"
 )
 
-type blockViewData struct {
-	blockNumber   *widget.TextGrid
-	prevBlockHash *widget.TextGrid
-	payload       *widget.Entry
-	hash          *widget.TextGrid
+type chainViewController struct {
+	peer    *blockchain.Peer
+	content *fyne.Container
+	hashes  []*widget.TextGrid
 }
-
-var changeChan = make(chan struct{})
-var blocksData = make([]*blockViewData, 0)
 
 func Chain(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
-	peer.MineBlock("Hello, World!")
+	controller := chainViewController{
+		peer:   peer,
+		hashes: make([]*widget.TextGrid, 0),
+	}
 	peer.MineBlock("test")
-	peer.MineBlock("This is a new block")
-	peer.MineBlock("foo bar baz")
+	peer.MineBlock("foo")
+	peer.MineBlock("Pray the sun")
+	peer.MineBlock("test")
+	peer.MineBlock("test")
+	peer.MineBlock("test")
 
+	controller.content = container.New(&BlockLayout{}, controller.makeChain()...)
 	content := container.NewVBox(
 		widget.NewSeparator(),
-		makeChain(peer.GetChain()),
+		controller.content,
+		widget.NewLabel(""),
 		widget.NewLabel(""),
 		widget.NewSeparator(),
 	)
 
-	go func() {
-		for {
-			<-changeChan
-			blockNumber, err := peer.GetChain().ValidateChain()
-			if blockNumber+1 < len(peer.GetChain().Blocks) {
-				blockNumber = blockNumber + 1
-			}
-			if err != nil {
-				for _, b := range blocksData[blockNumber:] {
-					b.prevBlockHash.SetStyleRange(0, 0, 0, 63,
-						&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 192, G: 64, B: 64, A: 128}})
-					b.prevBlockHash.Refresh()
-				}
-			}
-			// for _, b := range blocksData[blockNumber:] {
-			// 	b.prevBlockHash.SetStyleRange(0, 0, 0, 63,
-			// 		&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 64, G: 192, B: 64, A: 128}})
-			// 	b.prevBlockHash.Refresh()
-			// }
-		}
-	}()
-
-	scroller := container.NewHScroll(container.NewCenter(content))
-
-	return scroller
+	return container.NewHScroll(container.NewCenter(content))
 }
 
-func makeChain(chain *blockchain.Chain) fyne.CanvasObject {
-	var items []fyne.CanvasObject
-	for blockNum := range chain.Blocks {
-		items = append(items, makeBlock(chain, blockNum))
+func (c *chainViewController) makeChain() []fyne.CanvasObject {
+	var blocks []fyne.CanvasObject
+	for _, block := range c.peer.GetChain().Blocks {
+		blocks = append(blocks, c.makeBlock(block, false, false))
 	}
-	return container.New(&BlockLayout{}, items...)
+
+	emptyBlock := blockchain.Block{
+		Number:        c.peer.GetChainLen(),
+		PrevBlockHash: c.peer.GetBlock(c.peer.GetChainLen() - 1).Hash,
+	}
+	blocks = append(blocks, c.makeBlock(emptyBlock, true, false))
+
+	return blocks
 }
 
-func makeBlock(chain *blockchain.Chain, blockNum int) fyne.CanvasObject {
-	block := chain.Blocks[blockNum]
-	blockData := &blockViewData{
-		blockNumber:   widget.NewTextGridFromString(fmt.Sprintf("%d\n", block.Number)),
-		prevBlockHash: widget.NewTextGridFromString(fmt.Sprintf("%s\n", block.PrevBlockHash)),
-		payload:       widget.NewMultiLineEntry(),
-		hash:          widget.NewTextGridFromString(fmt.Sprintf("\n%s", block.Hash)),
-	}
+func (c *chainViewController) makeBlock(block blockchain.Block, minable, isWrong bool) fyne.CanvasObject {
+	blockNumber := widget.NewLabel(fmt.Sprintf("%d", block.Number))
 
-	blockData.prevBlockHash.SetStyleRange(0, 0, 0, 63,
+	prevBlockHash := widget.NewTextGridFromString(block.PrevBlockHash)
+	prevBlockHash.SetStyleRange(0, 0, 0, 64,
 		&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 64, G: 192, B: 64, A: 128}})
 
-	blocksData = append(blocksData, blockData)
+	c.hashes = append(c.hashes, prevBlockHash)
 
-	blockData.payload.SetPlaceHolder("Введите текст")
-	blockData.payload.SetText(block.Payload)
+	payload := widget.NewMultiLineEntry()
+	payload.SetPlaceHolder("Введите текст")
+	payload.SetText(block.Payload)
 
-	blockData.payload.OnChanged = func(s string) {
-		chain.Blocks[blockNum].Payload = blockData.payload.Text
-		newBlockHAsh := chain.Blocks[blockNum].Mine()
-		blockData.hash.SetText(fmt.Sprintf("\n%s", newBlockHAsh))
-		chain.Blocks[blockNum].Payload = newBlockHAsh
-		changeChan <- struct{}{}
+	currBlockHash := widget.NewLabel(block.Hash)
+	currBlockHash.SetText(block.Hash)
+
+	payload.OnChanged = func(s string) {
+		block.Payload = payload.Text
+		currBlockHash.SetText(block.Mine())
+
+		if block.Number < c.peer.GetChainLen() {
+			c.peer.Chain.Blocks[block.Number] = block
+			blockNum, err := c.peer.GetChain().ValidateChain()
+			if err != nil {
+				for i := range c.hashes {
+					if i > c.peer.GetChainLen() {
+						break
+					}
+
+					if i >= blockNum {
+						c.hashes[i].SetStyleRange(0, 0, 0, 64,
+							&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 192, G: 64, B: 64, A: 128}})
+					} else {
+						c.hashes[i].SetStyleRange(0, 0, 0, 64,
+							&widget.CustomTextGridStyle{BGColor: &color.NRGBA{R: 64, G: 192, B: 64, A: 128}})
+					}
+
+					c.hashes[i].Refresh()
+				}
+			}
+		}
 	}
 
-	blockContent := container.NewVBox(
-		blockData.blockNumber,
-		blockData.prevBlockHash,
-		blockData.payload,
-		blockData.hash,
-	)
+	mineButton := widget.NewButton("Mine", func() {})
+
+	mineButton.OnTapped = func() {
+		c.peer.MineBlock(payload.Text)
+
+		emptyBlock := blockchain.Block{
+			Number:        c.peer.GetChainLen(),
+			PrevBlockHash: c.peer.GetBlock(c.peer.GetChainLen() - 1).Hash,
+		}
+
+		emptyBlock.Mine()
+
+		c.content.Objects = append(c.content.Objects, c.makeBlock(emptyBlock, true, false))
+		mineButton.DisableableWidget.Disable()
+		c.content.Refresh()
+	}
+
+	if !minable {
+		mineButton.DisableableWidget.Disable()
+	}
+
+	blockContent := container.NewVBox(blockNumber, prevBlockHash, payload, currBlockHash)
 	InfoContent := container.NewVBox(
-		widget.NewTextGridFromString("Block number\n"),
-		widget.NewTextGridFromString("Prev hash\n"),
-		widget.NewTextGridFromString("Payload\n\n\n\n"),
-		widget.NewTextGridFromString("Hash"),
+		widget.NewLabel("Block number"),
+		widget.NewLabel("Prev hash"),
+		widget.NewLabel("Payload"),
+		widget.NewLabel(""),
+		widget.NewLabel("Hash"),
+		mineButton,
 	)
 
 	return container.NewHBox(InfoContent, widget.NewSeparator(), blockContent)
 }
-
-// !TODO добавить валидацию цепи и окрашивание полей в красный от сломанного блока. Надо использовать горутину, которая будет ловить изменение пэйлоуда
-// через канал
-// !TODO добавить майнинг блоков

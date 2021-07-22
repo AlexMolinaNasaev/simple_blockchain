@@ -16,7 +16,7 @@ var expectedChain *Chain
 
 func init() {
 	expectedChain = NewChain(255)
-	prevBlockHash := expectedChain.Blocks[0].Hash
+	prevBlockHash := expectedChain.GetBlock(0).Hash
 
 	for i, p := range payloads {
 		i = i + 1
@@ -84,7 +84,7 @@ func TestValidateNewBlock(t *testing.T) {
 		t.Errorf(ExpectedErrorTemplate, expectedErrMsg, err.Error())
 	}
 
-	if err := testChain.ValidateNewBlock(expectedChain.Blocks[1]); err != nil {
+	if err := testChain.ValidateNewBlock(expectedChain.GetBlock(1)); err != nil {
 		t.Errorf(ExpectedNoErrorTemplate, err.Error())
 	}
 
@@ -122,7 +122,7 @@ func TestMineBlock(t *testing.T) {
 	payload := "mine me!"
 	controllBlock := Block{
 		Number:        chainlen,
-		PrevBlockHash: expectedChain.Blocks[chainlen-1].Hash,
+		PrevBlockHash: expectedChain.GetBlock(chainlen - 1).Hash,
 		Payload:       payload,
 	}
 
@@ -130,7 +130,7 @@ func TestMineBlock(t *testing.T) {
 
 	expectedChain.MineBlock(payload)
 
-	if controllBlock.Hash != expectedChain.Blocks[chainlen].Hash {
+	if controllBlock.Hash != expectedChain.GetBlock(chainlen).Hash {
 		t.Errorf("wrong mined block hash:\n block[%d][controll] - %s\n block[%d][mined] - %s",
 			chainlen, controllBlock.Hash, chainlen, expectedChain.Blocks[chainlen].Hash)
 	}

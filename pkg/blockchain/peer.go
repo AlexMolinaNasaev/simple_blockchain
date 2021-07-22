@@ -5,13 +5,13 @@ import "fmt"
 type Peer struct {
 	ID    uint8
 	Peers map[uint8]*Peer
-	chain *Chain
+	Chain *Chain
 }
 
 func NewPeer(peerID, chainID uint8) *Peer {
 	return &Peer{
 		ID:    peerID,
-		chain: NewChain(chainID),
+		Chain: NewChain(chainID),
 		Peers: make(map[uint8]*Peer),
 	}
 }
@@ -27,11 +27,15 @@ func (p *Peer) AddPeer(peer *Peer) error {
 }
 
 func (p *Peer) GetChain() *Chain {
-	return p.chain
+	return p.Chain
+}
+
+func (p *Peer) GetBlock(blockNum int) Block {
+	return p.Chain.GetBlock(blockNum)
 }
 
 func (p *Peer) GetChainLen() int {
-	return len(p.chain.Blocks)
+	return len(p.Chain.Blocks)
 }
 
 func (p *Peer) DeletePeerByID(id uint8) {
@@ -39,13 +43,13 @@ func (p *Peer) DeletePeerByID(id uint8) {
 }
 
 func (p *Peer) AddBlock(block Block) error {
-	p.chain.AddBlock(block)
+	p.Chain.AddBlock(block)
 	return nil
 }
 
 func (p *Peer) MineBlock(payload string) {
-	chainLen := len(p.chain.Blocks)
-	prevBlock := p.chain.Blocks[chainLen-1]
+	chainLen := len(p.Chain.Blocks)
+	prevBlock := p.GetBlock(chainLen - 1)
 
 	newBlock := Block{
 		Number:        chainLen,
@@ -54,7 +58,7 @@ func (p *Peer) MineBlock(payload string) {
 	}
 	newBlock.Mine()
 
-	p.chain.AddBlock(newBlock)
+	p.Chain.AddBlock(newBlock)
 
 	p.BroadcastBlock(newBlock)
 }
@@ -70,7 +74,7 @@ func (p *Peer) Sync() error {
 	for {
 		largestChainPeer = p.getLargestChainPeer()
 
-		_, err := largestChainPeer.chain.ValidateChain()
+		_, err := largestChainPeer.Chain.ValidateChain()
 		if err != nil {
 			p.DeletePeerByID(largestChainPeer.ID)
 			if len(p.Peers) == 0 {
@@ -82,7 +86,7 @@ func (p *Peer) Sync() error {
 		break
 	}
 
-	p.chain = largestChainPeer.chain
+	p.Chain = largestChainPeer.Chain
 	return nil
 }
 

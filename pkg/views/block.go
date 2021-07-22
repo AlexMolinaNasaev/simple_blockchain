@@ -9,6 +9,10 @@ import (
 func Block(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
 	peer.MineBlock("test!")
-	peerContent := makeBlock(peer.GetChain(), 1)
+	controller := chainViewController{
+		peer: peer,
+	}
+
+	peerContent := controller.makeBlock(peer.GetBlock(1), false, false)
 	return container.NewCenter(peerContent)
 }

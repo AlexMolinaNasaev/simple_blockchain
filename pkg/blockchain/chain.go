@@ -17,6 +17,10 @@ func NewChain(ID uint8) *Chain {
 	}
 }
 
+func (c *Chain) GetBlock(blockNum int) Block {
+	return c.Blocks[blockNum]
+}
+
 func (c *Chain) ValidateChain() (int, error) {
 	if len(c.Blocks) == 0 {
 		return -1, nil
@@ -57,12 +61,12 @@ func (c *Chain) ValidateBlock(blockNum int) error {
 			fmt.Errorf("block number: %d. Chain lenght:  %d", blockNum, chainLen))
 	}
 
-	prevBlock := c.Blocks[blockNum-1]
+	prevBlock := c.GetBlock(blockNum - 1)
 
 	validationBlock := Block{
 		Number:        blockNum,
 		PrevBlockHash: prevBlock.Hash,
-		Payload:       c.Blocks[blockNum].Payload,
+		Payload:       c.GetBlock(blockNum).Payload,
 	}
 
 	validationBlock.Hash = validationBlock.CalcHash()
@@ -88,7 +92,7 @@ func (c *Chain) ValidateNewBlock(block Block) error {
 			fmt.Errorf("block number: %d, chain length: %d", block.Number, chainLen))
 	}
 
-	prevBlock := c.Blocks[chainLen-1]
+	prevBlock := c.GetBlock(chainLen - 1)
 
 	validationBlock := Block{
 		Number:        chainLen,
@@ -108,7 +112,7 @@ func (c *Chain) MineBlock(payload string) {
 	chainLen := len(c.Blocks)
 	b := Block{
 		Number:        chainLen,
-		PrevBlockHash: c.Blocks[chainLen-1].Hash,
+		PrevBlockHash: c.GetBlock(chainLen - 1).Hash,
 		Payload:       payload,
 	}
 	b.Mine()
