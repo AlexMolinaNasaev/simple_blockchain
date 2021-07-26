@@ -22,12 +22,24 @@ func Chain(_ fyne.Window) fyne.CanvasObject {
 		peer:   peer,
 		hashes: make([]*widget.TextGrid, 0),
 	}
-	peer.MineBlock("test")
-	peer.MineBlock("foo")
-	peer.MineBlock("Pray the sun")
-	peer.MineBlock("test")
-	peer.MineBlock("test")
-	peer.MineBlock("test")
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Nikolay -> Peter 500",
+		"Nikolay -> Natalya 200"))
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Nikolay -> Peter 500",
+		"Nikolay -> Natalya 200"))
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Olga -> Peter 111",
+		"Peter -> Nikolay 14"))
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Alex -> Vladislav 100",
+		"Dominic -> Toretto 777"))
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Nikolay -> Peter 500",
+		"Nikolay -> Natalya 200"))
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Nikolay -> Peter 500",
+		"Nikolay -> Natalya 200"))
 
 	controller.content = container.New(&BlockLayout{}, controller.makeChain()...)
 	content := container.NewVBox(

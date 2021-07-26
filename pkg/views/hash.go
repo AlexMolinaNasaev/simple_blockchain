@@ -35,7 +35,11 @@ func Hash(w fyne.Window) fyne.CanvasObject {
 		}
 	})
 
-	content := container.NewVBox(input, hashResult, field1, field2, compareHashesButton)
+	hashesQ := widget.NewLabel("79228162514264337593543950336")
+
+	content := container.NewVBox(
+		input, hashResult, field1, field2,
+		compareHashesButton, widget.NewLabel(""), hashesQ)
 
 	return container.NewCenter(container.New(&BlockLayout{}, content))
 }

@@ -1,6 +1,8 @@
 package views
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"github.com/alexmolinanasaev/simple_blockchain/pkg/blockchain"
@@ -8,7 +10,9 @@ import (
 
 func Block(_ fyne.Window) fyne.CanvasObject {
 	peer := blockchain.NewPeer(1, 1)
-	peer.MineBlock("test!")
+	peer.MineBlock(fmt.Sprintf("%s\n%s",
+		"Nikolay -> Peter 500",
+		"Nikolay -> Natalya 200"))
 	controller := chainViewController{
 		peer: peer,
 	}
