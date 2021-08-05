@@ -19,6 +19,11 @@ func Links(_ fyne.Window) fyne.CanvasObject {
 		makeLink("https://www.blockchain.com/explorer?view=eth", ""),
 		makeLink("https://ethblockexplorer.org/", ""),
 		makeLink("https://www.etherchain.org/", ""),
+		widget.NewSeparator(),
+		widget.NewLabel("Дополнительное чтиво"),
+		makeLink("https://fincult.info/article/blokcheyn-chto-eto-takoe-i-kak-ego-ispolzuyut-v-finansakh/", ""),
+		makeLink("https://www.investopedia.com/terms/b/blockchain.asp", ""),
+		makeLink("https://en.bitcoin.it/wiki/Help:Introduction", ""),
 	)
 }
 
