@@ -48,7 +48,7 @@ func nonce() fyne.CanvasObject {
 
 func mining() fyne.CanvasObject {
 	puzzleDifficulty := widget.NewEntry()
-	puzzleDifficulty.SetText("0")
+	puzzleDifficulty.SetText("1")
 	nonceLabel := widget.NewLabel("nonce")
 	payloadEntry := widget.NewEntry()
 	payloadEntry.SetText("MINE MEEEEEEEE!")

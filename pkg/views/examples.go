@@ -11,6 +11,7 @@ type Example struct {
 
 var (
 	Examples = map[string]Example{
+		"whoami":     {"Кто я", "whoami", Whoami},
 		"definition": {"Определение", "definition", Definition},
 		"hash":       {"Хэш", "hash", Hash},
 		"block":      {"Блок", "block", Block},
@@ -20,6 +21,6 @@ var (
 	}
 
 	ExampleIndex = map[string][]string{
-		"": {"definition", "hash", "block", "chain", "mining", "links"},
+		"": {"whoami", "definition", "hash", "block", "chain", "mining", "links"},
 	}
 )
